@@ -1,10 +1,9 @@
-const { searchAllMovies, searchAllTVseries, getMovieDetails, getSerieDetails, getTrending } = require("./handlers/movies")
-const STATUS_CODE = require("../util/status-codes");
+const { searchAllMovies, searchAllTVseries, getMovieDetails, getSerieDetails, getTrendingMovies, getTrendingSeries } = require('./handlers/movies')
+const STATUS_CODE = require('./util/status-codes');
 
 const express = require('express');
 const app = express();
 
-const axios = require('axios');
 var morgan = require('morgan');
 var helmet = require('helmet');
 
@@ -12,14 +11,15 @@ require('dotenv').config();
 
 
 // MIDDLEWARE
+//green for success codes, red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for information codes.
 app.use(morgan('dev'));
 app.use(helmet());
-
+app.use(express.urlencoded({ extended: true, limit: '1000kb' }));
 
 const port = 3000;
 
 
-app.listen(port, (err) => {
+app.listen(port, (e) => {
           if (e) {
                     console.error(e);
                     return;
@@ -30,21 +30,23 @@ app.listen(port, (err) => {
 // ROUTES
 
 app.get('/', function (req, res) {
-          res.status(STATUS_CODE.OK).send('hi!')
+          res.status(STATUS_CODE.OK).send('Welcome to the homepage!')
 })
 
-api.get("/trending", getTrending);
+app.get('/trendingMovies', getTrendingMovies);
 
-api.get("/movies", searchAllMovies);
+app.get('/trendingSeries', getTrendingSeries);
 
-api.get("/movies/:id", getMovieDetails);
+app.get('/movies', searchAllMovies);
 
-api.get("/series", searchAllTVseries);
+app.get('/movie/:id', getMovieDetails);
 
-api.get("/series/:id", getSerieDetails);
+app.get('/series', searchAllTVseries);
+
+app.get('/serie/:id', getSerieDetails);
 
 
 
 app.get('*', function (req, res) {
-          res.status(STATUS_CODE.OK).send('No such route!')
+          res.send('No such route!')
 })
