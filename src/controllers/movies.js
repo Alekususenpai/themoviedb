@@ -1,23 +1,26 @@
-const STATUS_CODE = require("../util/status-codes");
+const STATUS_CODE = require('../util/status-codes');
 const axios = require('axios');
 
-const searchTerm = 'hello';
+const query = 'stranger';
 const page = 1;
-const language = 'es-ES';
-
+const language = 'en-EN';
 
 //MOVIES
 const searchAllMovies = async (req, res) => {
           try {
-                    let movies = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.API_KEY}&query=${searchTerm}&page=${page}&language=${language}`)
-
-                    res.status(STATUS_CODE.OK).send(movies.data);
+                    let movies = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.API_KEY}&query=${query}&page=${page}&language=${language}`)
+                    let totalpg = movies.data.total_pages;
+                    if (movies.data.results.length !== 0) {
+                              res.status(STATUS_CODE.OK).send(movies.data);
+                    } else {
+                              res.send(`Page ${page} not found. Total number of pages is ${totalpg}.`)
+                    }
           }
 
 
           catch (e) {
                     console.log('[ERROR]', e);
-                    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send(e);
+                    res.status(STATUS_CODE.NOT_FOUND).send('Movies not found. Please try again later');
           }
 }
 
@@ -26,7 +29,7 @@ const searchAllMovies = async (req, res) => {
 const getMovieDetails = async (req, res) => {
           try {
                     const { id } = req.params;
-                    let movieDetails = await axios.get(`http://api.themoviedb.org/3/movie/${id}?api_key=${process.env.API_KEY}&page=${page}&language=${language}&append_to_response=videos`)
+                    let movieDetails = await axios.get(`http://api.themoviedb.org/3/movie/${id}?api_key=${process.env.API_KEY}&language=${language}&append_to_response=videos`)
 
                     if (movieDetails) {
                               try {
@@ -44,7 +47,7 @@ const getMovieDetails = async (req, res) => {
           }
           catch (e) {
                     console.log('[ERROR]', e);
-                    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send(`No such movie found`);
+                    res.status(STATUS_CODE.NOT_FOUND).send(`No such movie found`);
           }
 }
 
@@ -52,14 +55,20 @@ const getMovieDetails = async (req, res) => {
 // SERIES
 const searchAllTVseries = async (req, res) => {
           try {
-                    let series = await axios.get(`https://api.themoviedb.org/3/search/tv?api_key=${process.env.API_KEY}&language=${language}&page=${page}&include_adult=false&query=${searchTerm}`)
-                    res.status(STATUS_CODE.OK).send(series.data);
+                    let series = await axios.get(`https://api.themoviedb.org/3/search/tv?api_key=${process.env.API_KEY}&language=${language}&page=${page}&include_adult=false&query=${query}`)
+                    let totalpg = series.data.total_pages;
+                    if (series.data.results.length !== 0) {
+                              res.status(STATUS_CODE.OK).send(series.data);
+                    } else {
+                              res.send(`Page ${page} not found. Total number of pages is ${totalpg}.`)
+                    }
+
           }
 
 
           catch (e) {
                     console.log('[ERROR]', e);
-                    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send(e);
+                    res.status(STATUS_CODE.NOT_FOUND).send('Series not found. Please try again later');
           }
 }
 
@@ -86,13 +95,13 @@ const getSerieDetails = async (req, res) => {
 
           catch (e) {
                     console.log('[ERROR]', e);
-                    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send(e);
+                    res.status(STATUS_CODE.NOT_FOUND).send('No such serie was found');
           }
 }
 
 const getTrendingMovies = async (req, res) => {
           try {
-                    let trendingMovies = await axios.get(`https://api.themoviedb.org/3/trending/movie/week?api_key=${process.env.API_KEY}&page=${page}`)
+                    let trendingMovies = await axios.get(`https://api.themoviedb.org/3/trending/movie/week?api_key=${process.env.API_KEY}&page=${page}&language=${language}`)
 
                     res.status(STATUS_CODE.OK).send(trendingMovies.data);
           }
@@ -100,13 +109,13 @@ const getTrendingMovies = async (req, res) => {
 
           catch (e) {
                     console.log('[ERROR]', e);
-                    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send(e);
+                    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send('Encountered a problem. Please try again later');
           }
 }
 
 const getTrendingSeries = async (req, res) => {
           try {
-                    let trendingSeries = await axios.get(`https://api.themoviedb.org/3/trending/tv/week?api_key=${process.env.API_KEY}&page=${page}`)
+                    let trendingSeries = await axios.get(`https://api.themoviedb.org/3/trending/tv/week?api_key=${process.env.API_KEY}&page=${page}&language=${language}`)
 
 
                     res.status(STATUS_CODE.OK).send(trendingSeries.data);
@@ -115,7 +124,7 @@ const getTrendingSeries = async (req, res) => {
 
           catch (e) {
                     console.log('[ERROR]', e);
-                    res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).send(e);
+                    res.status(STATUS_CODE.NOT_FOUND).send('Encountered a problem. Please try again later');
           }
 }
 
